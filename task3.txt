@@ -1,0 +1,34 @@
+/* Get all competitors with their rank and points: */
+SELECT c.name, r.rank, r.points 
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id;
+
+/* Find competitors ranked in the top 5: */
+SELECT c.name, r.rank, r.points
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id
+WHERE r.rank <= 5;
+
+/* List competitors with no rank movement (stable rank): */
+SELECT c.name, r.rank, r.points
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id
+WHERE r.movement = 0;
+
+/* Get the total points of competitors from a specific country (e.g., Croatia): */
+SELECT SUM(r.points) AS total_points
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id
+WHERE c.country = 'Croatia';
+
+/* Count the number of competitors per country: */
+SELECT c.country, COUNT(*) AS competitor_count
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id
+GROUP BY c.country;
+
+/* Find competitors with the highest points in the current week: */
+SELECT c.name, r.rank, r.points
+FROM Competitors c
+JOIN Competitor_Rankings r ON c.competitor_id = r.competitor_id
+WHERE r.points = (SELECT MAX(points) FROM Competitor_Rankings);

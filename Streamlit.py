@@ -2,10 +2,10 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 import plotly.express as px
-import warnings  # it is used to neglect warnings
+import warnings  
 
 # Suppress pandas warnings about DBAPI2 connections  suruss the warnings
-warnings.filterwarnings("ignore", category=UserWarning, message="pandas only supports SQLAlchemy connectable.*") # it is used for manupulating data from db
+warnings.filterwarnings("ignore", category=UserWarning, message="pandas only supports SQLAlchemy connectable.*")
 # Database connection
 def get_db_connection():
     conn = psycopg2.connect("dbname=Game_Analytics user=postgres password=pvasudwvan")
@@ -64,9 +64,9 @@ def get_country_analysis():
     conn.close()
     return df
 
-# Streamlit Application # used 
+# Streamlit Application 
 def main():
-    # Set up the layout # to display  all headers
+    # Set up the layout 
     st.set_page_config(page_title="Tennis Competitor Rankings Dashboard", layout="wide")
     st.title("🎾 Tennis Competitor Rankings Dashboard")
     st.sidebar.title("Filters & Navigation")
@@ -76,14 +76,14 @@ def main():
     summary = get_summary_statistics()
     country_analysis = get_country_analysis()
 
-    # Sidebar filters # storing the filters -this is created sidebars filters to get the details accordingly
+    # Sidebar filters 
     st.sidebar.header("Filter Competitors")
     competitor_name = st.sidebar.text_input("Search Competitor by Name")
     rank_range = st.sidebar.slider("Filter by Rank", min_value=int(df['rank'].min()), max_value=int(df['rank'].max()), value=(int(df['rank'].min()), int(df['rank'].max())))
     points_range = st.sidebar.slider("Filter by Points", min_value=int(df['points'].min()), max_value=int(df['points'].max()), value=(int(df['points'].min()), int(df['points'].max())))
     selected_country = st.sidebar.selectbox("Filter by Country", ["All"] + list(df['country'].unique()))
 
-    # Apply filters # applying
+    # Apply filters 
     if competitor_name:
         df = df[df['name'].str.contains(competitor_name, case=False, na=False)]
     df = df[(df['rank'] >= rank_range[0]) & (df['rank'] <= rank_range[1])]

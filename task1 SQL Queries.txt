@@ -1,35 +1,38 @@
-/* List all venues along with their associated complex name: */
-SELECT v.venue_name, v.city_name, v.country_name, c.complex_name
-FROM Venues v
-JOIN Complexes c ON v.complex_id = c.complex_id;
+/* List all competitions along with their category name */
+SELECT c.competition_name, cat.category_name
+FROM Competitions c
+JOIN Categories cat ON c.category_id = cat.category_id;
 
-/* Count the number of venues in each complex: */
-SELECT v.complex_id, c.complex_name, COUNT(v.venue_id) AS venue_count
-FROM Venues v
-JOIN Complexes c ON v.complex_id = c.complex_id
-GROUP BY v.complex_id, c.complex_name;
+/* Count the number of competitions in each category */
+SELECT cat.category_name, COUNT(c.competition_id) AS competition_count
+FROM Competitions c
+JOIN Categories cat ON c.category_id = cat.category_id
+GROUP BY cat.category_name;
 
-/* Get details of venues in a specific country (e.g., Chile): */
-SELECT * FROM Venues
-WHERE country_name = 'Chile';
+/* Find all competitions of type 'doubles' */
+SELECT competition_name
+FROM Competitions
+WHERE type = 'doubles';
 
-/* Identify all venues and their timezones: */
-SELECT venue_name, timezone FROM Venues;
+/* Get competitions that belong to a specific category (e.g., ITF Men) */
+SELECT competition_name
+FROM Competitions c
+JOIN Categories cat ON c.category_id = cat.category_id
+WHERE cat.category_name = 'ITF Men';
 
-/ *Find complexes that have more than one venue: */
-SELECT v.complex_id, c.complex_name, COUNT(v.venue_id) AS venue_count
-FROM Venues v
-JOIN Complexes c ON v.complex_id = c.complex_id
-GROUP BY v.complex_id, c.complex_name
-HAVING COUNT(v.venue_id) > 1;
+/* Identify parent competitions and their sub-competitions */
+SELECT parent.competition_name AS parent_competition, sub.competition_name AS sub_competition
+FROM Competitions sub
+JOIN Competitions parent ON sub.parent_id = parent.competition_id;
 
-/* List venues grouped by country: */
-SELECT country_name, ARRAY_AGG(venue_name) AS venues
-FROM Venues
-GROUP BY country_name;
+/* Analyze the distribution of competition types by category */
+SELECT cat.category_name, c.type, COUNT(*) AS competition_count
+FROM Competitions c
+JOIN Categories cat ON c.category_id = cat.category_id
+GROUP BY cat.category_name, c.type
+ORDER BY cat.category_name, c.type;
 
-/* Find all venues for a specific complex (e.g., Nacional): */
-SELECT v.venue_name, v.city_name, v.country_name
-FROM Venues v
-JOIN Complexes c ON v.complex_id = c.complex_id
-WHERE c.complex_name = 'Nacional';
+/* List all competitions with no parent (top-level competitions) */
+SELECT competition_name
+FROM Competitions
+WHERE parent_id IS NULL;

@@ -2,10 +2,12 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 import plotly.express as px
-import warnings  
+import warnings
 
 # Suppress pandas warnings about DBAPI2 connections  suruss the warnings
 warnings.filterwarnings("ignore", category=UserWarning, message="pandas only supports SQLAlchemy connectable.*")
+
+
 # Database connection
 def get_db_connection():
     conn = psycopg2.connect("dbname=Game_Analytics user=postgres password=pvasudwvan")
@@ -17,6 +19,7 @@ def execute_query(query):
     df = pd.read_sql(query, conn)
     conn.close()
     return df
+
 
 # Function to get all competitors from the database
 def get_competitors():
@@ -39,6 +42,7 @@ def get_competitors():
     conn.close()
     return df
 
+
 # Function to get summary statistics for the homepage dashboard
 def get_summary_statistics():
     conn = get_db_connection()
@@ -53,6 +57,7 @@ def get_summary_statistics():
     summary = pd.read_sql(query, conn)
     conn.close()
     return summary
+
 
 # Function to get country-wise analysis
 def get_country_analysis():
@@ -71,9 +76,10 @@ def get_country_analysis():
     conn.close()
     return df
 
-# Streamlit Application 
+
+# Streamlit Application
 def main():
-    # Set up the layout 
+    # Set up the layout
     st.set_page_config(page_title="Tennis Competitor Rankings Dashboard", layout="wide")
     st.title("🎾 Tennis Competitor Rankings Dashboard")
     st.sidebar.title("Filters & Navigation")
@@ -83,14 +89,17 @@ def main():
     summary = get_summary_statistics()
     country_analysis = get_country_analysis()
 
-    # Sidebar filters 
+    # Sidebar filters
     st.sidebar.header("Filter Competitors")
     competitor_name = st.sidebar.text_input("Search Competitor by Name")
-    rank_range = st.sidebar.slider("Filter by Rank", min_value=int(df['rank'].min()), max_value=int(df['rank'].max()), value=(int(df['rank'].min()), int(df['rank'].max())))
-    points_range = st.sidebar.slider("Filter by Points", min_value=int(df['points'].min()), max_value=int(df['points'].max()), value=(int(df['points'].min()), int(df['points'].max())))
+    rank_range = st.sidebar.slider("Filter by Rank", min_value=int(df['rank'].min()), max_value=int(df['rank'].max()),
+                                   value=(int(df['rank'].min()), int(df['rank'].max())))
+    points_range = st.sidebar.slider("Filter by Points", min_value=int(df['points'].min()),
+                                     max_value=int(df['points'].max()),
+                                     value=(int(df['points'].min()), int(df['points'].max())))
     selected_country = st.sidebar.selectbox("Filter by Country", ["All"] + list(df['country'].unique()))
 
-    # Apply filters 
+    # Apply filters
     if competitor_name:
         df = df[df['name'].str.contains(competitor_name, case=False, na=False)]
     df = df[(df['rank'] >= rank_range[0]) & (df['rank'] <= rank_range[1])]
@@ -145,8 +154,8 @@ def main():
     fig1 = px.bar(top_points, x='name', y='points', title="Top 10 Competitors by Points", color='points')
     st.plotly_chart(fig1, use_container_width=True)
 
-# Query Selection
-    st.sidebar.header("Task1 Custom Queries")
+    # Query Selection
+    st.sidebar.header("SQL Queries of Competition Data")
     query_options = {
         "1.List all competitions along with their category name": """
                 SELECT c.competition_name, cat.category_name
@@ -194,10 +203,10 @@ def main():
     if selected_query:
         query = query_options[selected_query]
         result_df = execute_query(query)
-        st.header(f"Task1 Query: {selected_query}")
+        st.header(f" Query: {selected_query}")
         st.dataframe(result_df, use_container_width=True)
 
-    st.sidebar.header("Task2 Custom Queries")
+    st.sidebar.header("SQL Queries of Complexes Data")
     query_options = {
         "1.List all venues along with their associated complex name": """
                 SELECT v.venue_name, v.city_name, v.country_name, c.complex_name
@@ -241,10 +250,10 @@ def main():
     if selected_query:
         query = query_options[selected_query]
         result_df = execute_query(query)
-        st.header(f"Task2 Query: {selected_query}")
+        st.header(f" Query: {selected_query}")
         st.dataframe(result_df, use_container_width=True)
 
-    st.sidebar.header("Task3 Custom Queries")
+    st.sidebar.header("SQL Queries of Doubles competitor Rankings Data")
     query_options = {
         "1.Get all competitors with their rank and points": """
                 SELECT c.name, r.rank, r.points 
@@ -287,10 +296,10 @@ def main():
     if selected_query:
         query = query_options[selected_query]
         result_df = execute_query(query)
-        st.header(f"Task3 Query: {selected_query}")
+        st.header(f" Query: {selected_query}")
         st.dataframe(result_df, use_container_width=True)
 
-    
 
 if __name__ == "__main__":
     main()
+
